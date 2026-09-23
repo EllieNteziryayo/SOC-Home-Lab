@@ -1,0 +1,6 @@
+index=* source="WinEventLog:Security" EventCode=4625
+| rex "(?ms)Account For Which Logon Failed.+?Account Name:\s+(?<Failed_Account>\V+)"
+| stats count as Failed_Logins earliest(_time) as First_Attempt latest(_time) as Last_Attempt by Failed_Account ComputerName
+| where Failed_Logins >= 5
+| convert ctime(First_Attempt) ctime(Last_Attempt)
+| sort - Failed_Logins
